@@ -36,21 +36,21 @@ RUN \
   # Configure apache2
   &&  sed -i 's#AllowOverride None#AllowOverride All#' /etc/apache2/httpd.conf  \
   &&  sed -i 's#ServerName www.example.com:80#\nServerName localhost:80#' /etc/apache2/httpd.conf \
-  &&  sed -i 's#^DocumentRoot ".*#DocumentRoot "/"#g' /etc/apache2/httpd.conf \
-  &&  sed -i 's#/var/www/localhost/htdocs#/#g' /etc/apache2/httpd.conf \
-  &&  touch /var/log/apache2/access.log \
+  &&  sed -i 's#^DocumentRoot ".*#DocumentRoot "/mutillidae"#g' /etc/apache2/httpd.conf \
+  &&  sed -i 's#/var/www/localhost/htdocs#/mutillidae#g' /etc/apache2/httpd.conf \
   # Configure MariaDB
   &&  mysql_install_db --user=mysql --verbose=1 --basedir=/usr --datadir=/var/lib/mysql --rpm > /dev/null \
   
   
   #start.sh
   &&  echo "#!/bin/sh" > /start.sh \
-  &&  echo "httpd -k start" >> /start.sh \
   &&  echo "nohup mysqld --skip-grant-tables --bind-address 0.0.0.0 --user mysql > /dev/null 2>&1 &" >> /start.sh \
-  &&  echo "sleep 3 && mysql -uroot -e \"create database db;\"" >> /start.sh \
-  #&&  echo "tail -f /var/log/apache2/access.log" >> /start.sh \
+  &&  echo "sleep 3" >> /start.sh \
+  &&  echo "mysql -uroot -e \"create database db;\"" >> /start.sh \
+  &&  echo "sleep 3" >> /start.sh \
+  &&  echo "httpd -DFOREGROUND" >> /start.sh \
   
-  &&  chmod 644 /var/log/apache2/access.log \
+  #&&  chmod 644 /var/log/apache2/access.log \
   &&  chmod u+x /start.sh
 
 EXPOSE 80 3306
